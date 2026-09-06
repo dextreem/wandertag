@@ -1,12 +1,19 @@
 import axios, { type AxiosError } from 'axios';
-import { env } from '$env/dynamic/public';
+import { publicEnv } from '$lib/env';
 import { getKeycloak, getValidAccessToken } from '../keycloak.js';
 
-const { PUBLIC_API_URL } = env;
-
 export const http = axios.create({
-	baseURL: PUBLIC_API_URL,
 	headers: { 'Content-Type': 'application/json' }
+});
+
+// Resolved per request rather than baked in at import time. An unset
+// PUBLIC_API_URL used to leave `baseURL` undefined, which axios treats as "relative
+// to the current origin" — so every call silently hit the SvelteKit server instead
+// of the API and came back as HTML 404s. Now it throws and says which variable is
+// missing.
+http.interceptors.request.use((config) => {
+	config.baseURL = publicEnv.apiUrl;
+	return config;
 });
 
 http.interceptors.request.use(async (config) => {

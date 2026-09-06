@@ -410,6 +410,24 @@ Revisit if a third locale or translator handoff appears.
 run's spoofed positions make the next run's actions look like teleporting, and the
 suite blocks its own test user.
 
+### CI
+
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request:
+**lint** (Prettier + ESLint), **types** (`svelte-check`), **unit tests** (Vitest),
+then **build**, plus a Trivy filesystem scan that reports rather than blocks.
+
+The build job passes the `PUBLIC_*` variables explicitly. They are the values from
+`.env.example` — nothing secret, and nothing contacted during the build — but
+SvelteKit inlines them at compile time, so the bundle will not build without them.
+
+**Playwright is deliberately not in CI.** It mocks nothing: it needs PostGIS with
+seeded pins, a Keycloak realm import, and the API from the other repository, plus a
+real PKCE redirect and a spoofed GPS fix. Standing that up here would mean building
+the backend from a second repo and seeding an OSM extract — slow, and failing for
+reasons unrelated to a frontend change. So e2e is a local and pre-release gate; CI
+covers lint, types, unit tests and the build. Worth revisiting once the backend
+publishes a tagged container image, which it now does on a `v*` tag.
+
 ## PWA
 
 Manifest, generated icons, and a service worker precaching the app shell.

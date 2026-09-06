@@ -1,17 +1,17 @@
 import Keycloak from 'keycloak-js';
-import { env } from '$env/dynamic/public';
-
-const { PUBLIC_KEYCLOAK_URL, PUBLIC_KEYCLOAK_REALM, PUBLIC_KEYCLOAK_CLIENT_ID } = env;
+import { publicEnv } from '$lib/env';
 
 let keycloakInstance: Keycloak | null = null;
 
 export function getKeycloak(): Keycloak {
 	if (keycloakInstance) return keycloakInstance;
 
+	// Read here rather than at module scope: these throw when unset, and the
+	// instance is created on first use, not on import.
 	keycloakInstance = new Keycloak({
-		url: PUBLIC_KEYCLOAK_URL,
-		realm: PUBLIC_KEYCLOAK_REALM,
-		clientId: PUBLIC_KEYCLOAK_CLIENT_ID
+		url: publicEnv.keycloakUrl,
+		realm: publicEnv.keycloakRealm,
+		clientId: publicEnv.keycloakClientId
 	});
 
 	return keycloakInstance;
