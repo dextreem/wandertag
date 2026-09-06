@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+	<head>
+		<title>WanderTag — SSO check</title>
+	</head>
+	<body>
+		<!--
+			Landing target for Keycloak's silent SSO check.
+
+			Without this, `check-sso` performs a *top-level* redirect to Keycloak on
+			every anonymous page load and comes back with `#error=login_required` —
+			a visible flash and a full round trip before the landing page can paint.
+			Pointing `silentCheckSsoRedirectUri` here moves that check into a hidden
+			iframe, and this page just hands the result back to the opener.
+		-->
+		<script>
+			parent.postMessage(location.href, location.origin);
+		</script>
+	</body>
+</html>

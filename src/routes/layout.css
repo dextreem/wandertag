@@ -1,0 +1,297 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/rubik';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * WanderTag palette — sage, linen and tan.
+ *
+ * Four anchor colours, all drawn from the same natural family:
+ *
+ *   #8FA28A  sage   muted moss green — the family the brand sits in
+ *   #C7D3C0  sage   its pale tint — subtle fills and hovers
+ *   #F7F4ED  linen  warm off-white — the light ground
+ *   #C8A96B  tan    dry-grass gold — the one warm accent
+ *
+ * The ramps are tints and shades of those. Nothing here is a neutral grey: every
+ * "grey" is a warm linen or a desaturated sage, which is what keeps the whole
+ * thing reading as outdoors rather than as a dashboard.
+ *
+ * The anchor sage (#8FA28A) and tan (#C8A96B) are too light to carry text on a
+ * linen ground — roughly 2:1 — so the *roles* below reach for darker steps of the
+ * same hues and keep the anchors for fills, strokes and accents. That is the one
+ * thing to preserve when editing: pick by contrast, not by which hex looks nicest.
+ *
+ * Tan is deliberately scarce. It marks first blood and rank 1 and nothing else,
+ * so that seeing it always means the same thing.
+ */
+:root {
+	/* ── Sage (the brand hue) ── */
+	--sage-50: #eef1ec;
+	--sage-100: #dde4da;
+	--sage-200: #c7d3c0;
+	--sage-300: #aabba2;
+	--sage-400: #8fa28a;
+	--sage-500: #718566;
+	--sage-600: #5a6c50;
+	--sage-700: #46543e;
+	--sage-800: #333e2d;
+	--sage-900: #22291e;
+
+	/* ── Linen (warm neutrals — never grey) ── */
+	--linen-0: #fffefa;
+	--linen-50: #f7f4ed;
+	--linen-100: #efebe0;
+	--linen-200: #e3ddce;
+	--linen-300: #cfc8b4;
+	--linen-400: #ada593;
+	--linen-500: #857e6e;
+	--linen-600: #665f51;
+	--linen-700: #4a4539;
+	--linen-800: #322e25;
+	--linen-900: #211e18;
+	--linen-950: #15130f;
+
+	/* ── Tan (the scarce accent) ── */
+	--tan-100: #f3ebd9;
+	--tan-200: #e5d3ae;
+	--tan-300: #d6be8c;
+	--tan-400: #c8a96b;
+	--tan-500: #b08f4c;
+	--tan-600: #8a6f33;
+	--tan-700: #6b5526;
+
+	/* ── Semantic roles (light) ── */
+	--background: var(--linen-50);
+	--surface: var(--linen-0);
+	--surface-raised: var(--linen-0);
+	--surface-sunken: var(--linen-100);
+	--foreground: var(--sage-900);
+	--muted-foreground: var(--linen-600);
+	--border: var(--linen-200);
+	--border-strong: var(--linen-300);
+
+	--primary: var(--sage-600);
+	--primary-hover: var(--sage-700);
+	--primary-foreground: var(--linen-50);
+	--primary-subtle: var(--sage-100);
+	--accent: var(--sage-400);
+
+	/* Reserved for first blood and rank 1. Nothing else. */
+	--rare: var(--tan-600);
+	--rare-strong: var(--tan-400);
+	--rare-subtle: var(--tan-100);
+
+	--danger: #a34a32;
+	--danger-subtle: #f7e3dc;
+	--warning: var(--tan-700);
+	--warning-subtle: var(--tan-100);
+	--success: var(--sage-600);
+	--success-subtle: var(--sage-100);
+
+	/* Warm shadows: a neutral black shadow over linen reads as dirty grey. */
+	--shadow-sm: 0 1px 2px rgb(34 41 30 / 0.06);
+	--shadow-md: 0 0.6rem 2.4rem rgb(34 41 30 / 0.08);
+	--shadow-lg: 0 2.4rem 3.2rem rgb(34 41 30 / 0.14);
+
+	--radius-sm: 5px;
+	--radius-md: 7px;
+	--radius-lg: 9px;
+	--radius-xl: 16px;
+
+	color-scheme: light;
+}
+
+.dark {
+	/*
+	 * Dark mode keeps the same three families and swaps their roles: linen becomes
+	 * the text, a near-black linen becomes the ground, and the sage/tan roles move
+	 * to their lighter steps so they stay readable.
+	 */
+	--background: var(--linen-950);
+	--surface: var(--linen-900);
+	--surface-raised: var(--linen-800);
+	--surface-sunken: #0f0d0a;
+	--foreground: var(--linen-100);
+	--muted-foreground: var(--linen-400);
+	--border: var(--linen-800);
+	--border-strong: var(--linen-700);
+
+	--primary: var(--sage-300);
+	--primary-hover: var(--sage-200);
+	--primary-foreground: var(--linen-950);
+	--primary-subtle: var(--sage-800);
+	--accent: var(--sage-200);
+
+	--rare: var(--tan-300);
+	--rare-strong: var(--tan-400);
+	--rare-subtle: #3a2f17;
+
+	--danger: #e08c72;
+	--danger-subtle: #4a1e12;
+	--warning: var(--tan-300);
+	--warning-subtle: #3a2f17;
+	--success: var(--sage-300);
+	--success-subtle: var(--sage-800);
+
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+	--shadow-md: 0 0.6rem 2.4rem rgb(0 0 0 / 0.4);
+	--shadow-lg: 0 2.4rem 3.2rem rgb(0 0 0 / 0.5);
+
+	color-scheme: dark;
+}
+
+/* Expose the tokens to Tailwind utilities (bg-primary, text-muted-foreground, …). */
+@theme inline {
+	--color-background: var(--background);
+	--color-surface: var(--surface);
+	--color-surface-raised: var(--surface-raised);
+	--color-surface-sunken: var(--surface-sunken);
+	--color-foreground: var(--foreground);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-border: var(--border);
+	--color-border-strong: var(--border-strong);
+
+	--color-primary: var(--primary);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-subtle: var(--primary-subtle);
+	--color-accent: var(--accent);
+
+	--color-rare: var(--rare);
+	--color-rare-strong: var(--rare-strong);
+	--color-rare-subtle: var(--rare-subtle);
+
+	--color-danger: var(--danger);
+	--color-danger-subtle: var(--danger-subtle);
+	--color-warning: var(--warning);
+	--color-warning-subtle: var(--warning-subtle);
+	--color-success: var(--success);
+	--color-success-subtle: var(--success-subtle);
+
+	--color-sage-50: var(--sage-50);
+	--color-sage-100: var(--sage-100);
+	--color-sage-200: var(--sage-200);
+	--color-sage-300: var(--sage-300);
+	--color-sage-400: var(--sage-400);
+	--color-sage-500: var(--sage-500);
+	--color-sage-600: var(--sage-600);
+	--color-sage-700: var(--sage-700);
+	--color-sage-800: var(--sage-800);
+	--color-sage-900: var(--sage-900);
+
+	--color-linen-0: var(--linen-0);
+	--color-linen-50: var(--linen-50);
+	--color-linen-100: var(--linen-100);
+	--color-linen-200: var(--linen-200);
+	--color-linen-300: var(--linen-300);
+	--color-linen-900: var(--linen-900);
+	--color-linen-950: var(--linen-950);
+
+	--color-tan-100: var(--tan-100);
+	--color-tan-400: var(--tan-400);
+	--color-tan-600: var(--tan-600);
+
+	--font-sans: 'Rubik Variable', ui-sans-serif, system-ui, sans-serif;
+
+	--radius-sm: var(--radius-sm);
+	--radius-md: var(--radius-md);
+	--radius-lg: var(--radius-lg);
+	--radius-xl: var(--radius-xl);
+}
+
+@layer base {
+	html,
+	body {
+		height: 100%;
+		/* 100dvh, not 100vh: mobile browsers shrink the viewport when the URL bar
+		   collapses, and a 100vh map leaves a dead strip under the bottom nav. */
+		min-height: 100dvh;
+	}
+
+	body {
+		background-color: var(--background);
+		color: var(--foreground);
+		font-family: var(--font-sans);
+		/* The map owns panning; the page itself must never rubber-band. */
+		overscroll-behavior: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	/* Respect the notch and home indicator on iOS. */
+	:root {
+		--safe-top: env(safe-area-inset-top, 0px);
+		--safe-bottom: env(safe-area-inset-bottom, 0px);
+		--safe-left: env(safe-area-inset-left, 0px);
+		--safe-right: env(safe-area-inset-right, 0px);
+		/* Height of the bottom tab bar, used to inset the map controls. */
+		--bottom-nav-height: calc(3.75rem + var(--safe-bottom));
+	}
+
+	/* From md up, navigation moves into the header and the tab bar disappears. */
+	@media (min-width: 768px) {
+		:root {
+			--bottom-nav-height: 0px;
+		}
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--primary);
+		outline-offset: 2px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+}
+
+@layer components {
+	/* Minimum comfortable touch target — everything tappable gets this. */
+	.touch-target {
+		min-height: 44px;
+		min-width: 44px;
+	}
+
+	/*
+	 * Landing-page rhythm, following dropnote's proportions: generous vertical
+	 * padding that halves on a phone, and a max width so text lines stay readable
+	 * on a wide monitor.
+	 */
+	.landing-section {
+		padding-block: 4rem;
+		padding-inline: 1.25rem;
+	}
+
+	@media (min-width: 768px) {
+		.landing-section {
+			padding-block: 6rem;
+			padding-inline: 3rem;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.landing-section {
+			padding-block: 7.5rem;
+		}
+	}
+
+	.landing-inner {
+		margin-inline: auto;
+		width: 100%;
+		max-width: 75rem;
+	}
+
+	/* The eyebrow above every landing heading — small, uppercase, brand-coloured. */
+	.landing-eyebrow {
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-weight: 600;
+		font-size: 0.8125rem;
+		color: var(--primary);
+	}
+}

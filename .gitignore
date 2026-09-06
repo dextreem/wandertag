@@ -1,0 +1,37 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Vite / test
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
+
+# Screenshots that show a real position. `npm run screenshots` still produces these
+# locally — they are useful while working on the map — but they must never be
+# committed: the basemap names the streets around whoever ran the capture, the
+# position dot sits on them, and the nearby list gives landmarks with exact
+# distances. An earlier set was published to a public repo from a home address.
+docs/screenshots/*-map.png
+docs/screenshots/*-map-legend.png
+docs/screenshots/*-list.png
+docs/screenshots/*-pin-sheet.png
+docs/screenshots/*-admin-activity.png
