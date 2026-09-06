@@ -416,9 +416,19 @@ suite blocks its own test user.
 **lint** (Prettier + ESLint), **types** (`svelte-check`), **unit tests** (Vitest),
 then **build**, plus a Trivy filesystem scan that reports rather than blocks.
 
-The build job passes the `PUBLIC_*` variables explicitly. They are the values from
-`.env.example` — nothing secret, and nothing contacted during the build — but
-SvelteKit inlines them at compile time, so the bundle will not build without them.
+CI needs no `PUBLIC_*` variables. The app reads them through
+`$env/dynamic/public`, which adapter-node resolves from the environment at runtime,
+so the bundle is built once and configured per deployment.
+
+That distinction caused a real CI failure worth knowing about. `$env/dynamic/public`
+is runtime-resolved and therefore correctly typed `string | undefined`, but
+SvelteKit narrows those types when a `.env` happens to exist at `svelte-kit sync`
+time — so `npm run check` passed on a developer machine and failed on a clean
+checkout. Every public variable now goes through `publicEnv` in `src/lib/env.ts`,
+which reads each one via `required()`: the exported values are `string` because
+absence throws, and a missing variable names itself instead of surfacing as an
+opaque `keycloak-js` error. Add new public config there rather than importing
+`$env/dynamic/public` directly.
 
 **Playwright is deliberately not in CI.** It mocks nothing: it needs PostGIS with
 seeded pins, a Keycloak realm import, and the API from the other repository, plus a
