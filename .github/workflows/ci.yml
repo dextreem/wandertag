@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      # `npm ci` rather than `npm install`: it installs exactly what the lockfile
+      # pins and fails if the lockfile and package.json disagree, which is the
+      # behaviour you want on a build machine.
+      - run: npm ci
+      # Prettier and ESLint, via the repo's own script, so CI and a local
+      # `npm run lint` can never disagree about what "lint" means.
+      - run: npm run lint
+
+  check:
+    name: Types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # `svelte-check` needs the generated `.svelte-kit` types; `npm run check`
+      # runs `svelte-kit sync` first, so this works on a clean checkout.
+      - run: npm run check
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:unit
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, check, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # The build reads PUBLIC_* variables at compile time. These are the local
+      # development values from .env.example — they only have to be present and
+      # well-formed for the bundle to build; nothing here is a secret, and nothing
+      # here is contacted during the build.
+      - name: Build
+        run: npm run build
+        env:
+          PUBLIC_ENV: production
+          PUBLIC_API_URL: http://localhost:8081/api/v1
+          PUBLIC_KEYCLOAK_URL: http://localhost:8181
+          PUBLIC_KEYCLOAK_REALM: wandertag
+          PUBLIC_KEYCLOAK_CLIENT_ID: wandertag-frontend
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: .svelte-kit/output/
+          retention-days: 7
+
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan repository with Trivy
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          ignore-unfixed: true
+          format: sarif
+          output: trivy-fs.sarif
+          severity: HIGH,CRITICAL
+          # Reports rather than blocks, matching the backend: a new CVE in a
+          # transitive dependency should not stop a release that does not use it.
+          exit-code: '0'
+      - name: Upload filesystem scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-fs-report
+          path: trivy-fs.sarif
+
+# Deliberately absent: the Playwright suite.
+#
+# `npm run test:e2e` mocks nothing — it needs PostGIS with ~14k seeded pins, a
+# Keycloak realm import, the Spring Boot API and a real PKCE redirect, and it
+# spoofs geolocation to reach a seeded pin. Standing all of that up here would mean
+# building the backend from a second repository and seeding an OSM extract, which
+# is slow and would fail for reasons unrelated to a frontend change.
+#
+# Until the backend publishes a container image on a tag, the honest position is
+# that e2e is a local and pre-release gate (`make local-setup && make run`, then
+# `npm run test:e2e`), and CI covers lint, types, unit tests and the build.
